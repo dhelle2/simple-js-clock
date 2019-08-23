@@ -1,0 +1,22 @@
+name: Build and Publish Docker Image
+
+on: push
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: registry-login
+      uses: actions/docker/login@master
+      env:
+        DOCKER_REGISTRY_URL: docker.pkg.github.com
+        DOCKER_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+    - name: build
+      uses: actions/docker/cli@master
+      with:
+        args: build -t docker.pkg.github.com/${{ github.repository }}/test-cicd:${{ github.sha }} .
+    - name: push-image
+      uses: actions/docker/cli@master
+      with:
+        args: push docker.pkg.github.com/${{ github.repository }}/test-cicd:${{ github.sha }}
